@@ -17,16 +17,16 @@
 from glob import glob
 import os, subprocess, shutil, sys, platform, signal
 from io import StringIO
-import sys
-import environment
-import mesonlib
-import mlog
-import meson, meson_test
+from meson import environment
+from meson import mesonlib
+from meson import mlog
+from meson import mesonmain as meson
+from meson import meson_test
 import argparse
 import xml.etree.ElementTree as ET
 import time
 
-from meson import backendlist
+from meson.mesonmain import backendlist
 
 class TestResult:
     def __init__(self, msg, stdo, stde, conftime=0, buildtime=0, testtime=0):

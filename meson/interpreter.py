@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mparser
-import environment
-import coredata
-import dependencies
-import mlog
-import build
-import optinterpreter
-import wrap
-import mesonlib
+from . import mparser
+from . import environment
+from . import coredata
+from . import dependencies
+from . import mlog
+from . import build
+from . import optinterpreter
+from . import wrap
+from . import mesonlib
+from . import modules
+
 import os, sys, platform, subprocess, shutil, uuid, re
 from functools import wraps
 
@@ -978,7 +980,7 @@ class Interpreter():
             raise InvalidCode('Import takes one argument.')
         modname = args[0]
         if not modname in self.environment.coredata.modules:
-            module = importlib.import_module('modules.' + modname).initialize()
+            module = importlib.import_module(modname, package="meson.modules").initialize()
             self.environment.coredata.modules[modname] = module
         return ModuleHolder(modname, self.environment.coredata.modules[modname], self)
 

@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import backends
-import environment, mesonlib
-import build
-import mlog
-import dependencies
-from mesonlib import File
-from meson_install import InstallData
-from build import InvalidArguments
-from coredata import MesonException
+from . import backends
+from . import environment, mesonlib
+from . import build
+from .build import InstallData
+from . import mlog
+from . import dependencies
+from .mesonlib import File
+from .build import InvalidArguments
+from .coredata import MesonException
 import os, sys, shutil, pickle, re
 
 if mesonlib.is_windows():
@@ -367,7 +367,9 @@ class NinjaBackend(backends.Backend):
 
     def generate_install(self, outfile):
         script_root = self.environment.get_script_dir()
-        install_script = os.path.join(script_root, 'meson_install.py')
+        # HACK TO USE WHILE TRANSITIONING TO DISTUTILS
+        # Remove the '..' bit as soon as this works.
+        install_script = os.path.join(script_root, '..', 'meson_install.py')
         install_data_file = os.path.join(self.environment.get_scratch_dir(), 'install.dat')
         depfixer = os.path.join(script_root, 'depfixer.py')
         d = InstallData(self.environment.get_source_dir(),

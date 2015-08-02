@@ -13,9 +13,10 @@
 # limitations under the License.
 
 import re
-import coredata
+from . import coredata
 from glob import glob
-from compilers import *
+from . import mesonlib
+from meson.compilers import *
 import configparser
 
 build_filename = 'meson.build'

@@ -15,11 +15,11 @@
 '''This module provides helper functions for Gnome/GLib related
 functionality such as gobject-introspection and gresources.'''
 
-import build
+from .. import build
 import os
 import subprocess
-from coredata import MesonException
-import mlog
+from ..coredata import MesonException
+from .. import mlog
 
 class GnomeModule:
 

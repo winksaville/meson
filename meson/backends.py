@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import os, pickle
-import build
-import dependencies
-import mesonlib
-from coredata import MesonException
+from . import build
+from . import dependencies
+from . import mesonlib
+from .coredata import MesonException
 
 class TestSerialisation:
     def __init__(self, name, fname, is_cross, exe_wrapper, is_parallel, cmd_args, env,
