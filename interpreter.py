@@ -23,6 +23,7 @@ import wrap
 import mesonlib
 import os, sys, platform, subprocess, shutil, uuid, re
 from functools import wraps
+from meson import build_types
 
 import importlib
 
@@ -1192,15 +1193,26 @@ class Interpreter():
     def func_project(self, node, args, kwargs):
         if len(args) < 2:
             raise InvalidArguments('Not enough arguments to project(). Needs at least the project name and one language')
-        if list(kwargs.keys()) != ['subproject_dir'] and len(kwargs) != 0:
-            raise InvalidArguments('project() only accepts the keyword argument "subproject_dir"')
+
+        # Process buildtype kwarg
+        buildtype = kwargs.pop('buildtype', self.coredata.buildtype)
+        if buildtype not in build_types:
+            raise InterpreterException('Invalid build type %s.' % buildtype)
+        self.coredata.buildtype = buildtype
+
+        # Process subproject_dir kwarg
+        subproject_dir = kwargs.pop('subproject_dir', '')
+
+        # Check for unknown keyword args.
+        if kwargs:
+            raise InvalidArguments('Unused keyword arguments in project(): %s' % kwargs)
 
         if not self.is_subproject():
             self.build.project_name = args[0]
         if self.subproject in self.build.projects:
             raise InvalidCode('Second call to project().')
-        if not self.is_subproject() and 'subproject_dir' in kwargs:
-            self.subproject_dir = kwargs['subproject_dir']
+        if not self.is_subproject() and subproject_dir != '':
+            self.subproject_dir = subproject_dir
 
         self.build.projects[self.subproject] = args[0]
         mlog.log('Project name: ', mlog.bold(args[0]), sep='')
