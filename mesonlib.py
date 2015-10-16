@@ -266,17 +266,18 @@ def stringlistify(item):
     return item
 
 class UserOption:
-    def __init__(self, name, description):
+    def __init__(self, name, description, choices):
         super().__init__()
         self.name = name
+        self.choices = choices
         self.description = description
 
     def parse_string(self, valuestring):
         return valuestring
 
 class UserStringOption(UserOption):
-    def __init__(self, name, description, value):
-        super().__init__(name, description)
+    def __init__(self, name, description, value, **kwargs):
+        super().__init__(name, description, kwargs.get('choices', []))
         self.set_value(value)
 
     def set_value(self, newvalue):
@@ -286,7 +287,7 @@ class UserStringOption(UserOption):
 
 class UserBooleanOption(UserOption):
     def __init__(self, name, description, value):
-        super().__init__(name, description)
+        super().__init__(name, description, ['true', 'false'])
         self.set_value(value)
 
     def tobool(self, thing):
@@ -310,8 +311,7 @@ class UserBooleanOption(UserOption):
 
 class UserComboOption(UserOption):
     def __init__(self, name, description, choices, value):
-        super().__init__(name, description)
-        self.choices = choices
+        super().__init__(name, description, choices)
         if not isinstance(self.choices, list):
             raise MesonException('Combo choices must be an array.')
         for i in self.choices:
@@ -326,8 +326,8 @@ class UserComboOption(UserOption):
         self.value = newvalue
 
 class UserStringArrayOption(UserOption):
-    def __init__(self, name, description, value):
-        super().__init__(name, description)
+    def __init__(self, name, description, value, **kwargs):
+        super().__init__(name, description, kwargs.get('choices', []))
         self.set_value(value)
 
     def set_value(self, newvalue):

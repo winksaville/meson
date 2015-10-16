@@ -53,16 +53,35 @@ class Conf:
     def print_aligned(self, arr):
         if len(arr) == 0:
             return
-        longest_name = max((len(x[0]) for x in arr))
-        longest_descr = max((len(x[1]) for x in arr))
+        titles = ['Option', 'Description', 'Current Value', '']
+        longest_name = len(titles[0])
+        longest_descr = len(titles[1])
+        longest_value = len(titles[2])
+        longest_possible_value = len(titles[3])
+        for x in arr:
+          longest_name = max(longest_name, len(x[0]))
+          longest_descr = max(longest_descr, len(x[1]))
+          longest_value = max(longest_value, len(str(x[2])))
+          longest_possible_value = max(longest_possible_value, len(x[3]))
+
+        if longest_possible_value > 0:
+          titles[3] = 'Possible Values'
+        print('  %s%s %s%s %s%s %s' % (titles[0], ' '*(longest_name - len(titles[0])), titles[1], ' '*(longest_descr - len(titles[1])), titles[2], ' '*(longest_value - len(titles[2])), titles[3]))
+        print('  %s%s %s%s %s%s %s' % ('-'*len(titles[0]), ' '*(longest_name - len(titles[0])), '-'*len(titles[1]), ' '*(longest_descr - len(titles[1])), '-'*len(titles[2]), ' '*(longest_value - len(titles[2])), '-'*len(titles[3])))
         for i in arr:
             name = i[0]
             descr = i[1]
             value = i[2]
+            if str(value) == 'True':
+                value = 'true'
+            else:
+                value = 'false'
+            possible_values = i[3]
             namepad = ' '*(longest_name - len(name))
             descrpad = ' '*(longest_descr - len(descr))
-            f = '%s%s %s%s' % (name, namepad, descr, descrpad)
-            print(f, value)
+            valuepad = ' '*(longest_value - len(str(value)))
+            f = '  %s%s %s%s %s%s %s' % (name, namepad, descr, descrpad, value, valuepad, possible_values)
+            print(f)
 
     def set_options(self, options):
         for o in options:
@@ -144,61 +163,57 @@ class Conf:
 
 
     def print_conf(self):
-        print('Core properties\n')
-        print('Source dir', self.build.environment.source_dir)
-        print('Build dir ', self.build.environment.build_dir)
+        print('Core properties:')
+        print('  Source dir', self.build.environment.source_dir)
+        print('  Build dir ', self.build.environment.build_dir)
         print('')
-        print('Core options\n')
+        print('Core options:')
         carr = []
-        carr.append(['buildtype', 'Build type', self.coredata.buildtype])
-        carr.append(['warnlevel', 'Warning level', self.coredata.warning_level])
-        carr.append(['strip', 'Strip on install', self.coredata.strip])
-        carr.append(['coverage', 'Coverage report', self.coredata.coverage])
-        carr.append(['pch', 'Precompiled headers', self.coredata.use_pch])
-        carr.append(['unity', 'Unity build', self.coredata.unity])
+        booleans = '[true, false]'
+        carr.append(['buildtype', 'Build type', self.coredata.buildtype, build_types])
+        carr.append(['warnlevel', 'Warning level', self.coredata.warning_level, warning_levels])
+        carr.append(['strip', 'Strip on install', self.coredata.strip, booleans])
+        carr.append(['coverage', 'Coverage report', self.coredata.coverage, booleans])
+        carr.append(['pch', 'Precompiled headers', self.coredata.use_pch, booleans])
+        carr.append(['unity', 'Unity build', self.coredata.unity, booleans])
         self.print_aligned(carr)
         print('')
-        print('Compiler arguments\n')
+        print('Compiler arguments:')
         for (lang, args) in self.coredata.external_args.items():
-            print(lang + 'args', str(args))
+            print('  ' + lang + 'args', str(args))
         print('')
-        print('Linker args\n')
+        print('Linker args:')
         for (lang, args) in self.coredata.external_link_args.items():
-            print(lang + 'linkargs', str(args))
+            print('  ' + lang + 'linkargs', str(args))
         print('')
-        okeys = sorted(self.coredata.compiler_options.keys())
-        if len(okeys) == 0:
-            print('No compiler options\n')
-        else:
-            print('Compiler options\n')
-            coarr = []
-            for k in okeys:
-                o = self.coredata.compiler_options[k]
-                coarr.append([k, o.description, o.value])
-            self.print_aligned(coarr)
-        print('')
-        print('Directories\n')
+        print('Directories:')
         parr = []
-        parr.append(['prefix', 'Install prefix', self.coredata.prefix])
-        parr.append(['libdir', 'Library directory', self.coredata.libdir])
-        parr.append(['bindir', 'Binary directory', self.coredata.bindir])
-        parr.append(['includedir', 'Header directory', self.coredata.includedir])
-        parr.append(['datadir', 'Data directory', self.coredata.datadir])
-        parr.append(['mandir', 'Man page directory', self.coredata.mandir])
-        parr.append(['localedir', 'Locale file directory', self.coredata.localedir])
+        parr.append(['prefix', 'Install prefix', self.coredata.prefix, ''])
+        parr.append(['libdir', 'Library directory', self.coredata.libdir, ''])
+        parr.append(['bindir', 'Binary directory', self.coredata.bindir, ''])
+        parr.append(['includedir', 'Header directory', self.coredata.includedir, ''])
+        parr.append(['datadir', 'Data directory', self.coredata.datadir, ''])
+        parr.append(['mandir', 'Man page directory', self.coredata.mandir, ''])
+        parr.append(['localedir', 'Locale file directory', self.coredata.localedir, ''])
         self.print_aligned(parr)
         print('')
+        print('Project options:')
         if len(self.coredata.user_options) == 0:
-            print('This project does not have user options')
+            print('  This project does not have any options')
         else:
-            print('Project options\n')
             options = self.coredata.user_options
             keys = list(options.keys())
             keys.sort()
             optarr = []
             for key in keys:
                 opt = options[key]
-                optarr.append([key, opt.description, opt.value])
+                if (opt.choices is None) or (len(opt.choices) == 0):
+                  # Zero length list or string
+                  choices = '';
+                else:
+                  # A non zero length list or string, convert to string
+                  choices = str(opt.choices);
+                optarr.append([key, opt.description, opt.value, choices])
             self.print_aligned(optarr)
 
 if __name__ == '__main__':
